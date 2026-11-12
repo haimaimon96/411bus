@@ -1,0 +1,11 @@
+{
+  "name": "קו 411 להורים - צלפון ורמלה",
+  "short_name": "קו 411",
+  "description": "זמני הגעה בזמן אמת לקו 411 בתחנות מושב צלפון ותחנה מרכזית רמלה",
+  "start_url": "/index.html",
+  "display": "standalone",
+  "background_color": "#0f172a",
+  "theme_color": "#1e3a8a",
+  "lang": "he",
+  "dir": "rtl"
+}

@@ -1,0 +1,671 @@
+<!DOCTYPE html>
+<html lang="he" dir="rtl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0">
+  <link rel="manifest" href="/manifest.json">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-title" content="קו 411">
+  <title>קו 411 | זמני הגעה</title>
+  <script src="https://cdn.tailwindcss.com/3.4.17"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Heebo:wght@500;700;800;900&display=swap" rel="stylesheet">
+  <style>
+    body {
+      font-family: 'Heebo', sans-serif;
+      -webkit-tap-highlight-color: transparent;
+    }
+    .step-transition {
+      animation: fadeIn 0.2s ease-out;
+    }
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(6px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+  </style>
+</head>
+<body class="bg-slate-100 text-slate-900 min-h-screen flex flex-col justify-between selection:bg-blue-600 selection:text-white">
+
+  <!-- Clean Minimal Header -->
+  <header class="bg-blue-900 text-white shadow-md border-b-4 border-amber-400">
+    <div class="max-w-lg mx-auto px-4 py-3.5 flex items-center justify-between">
+      <div class="flex items-center gap-3">
+        <div class="bg-amber-400 text-slate-950 font-black px-3.5 py-1 rounded-2xl text-2xl sm:text-3xl shadow-sm border-2 border-white">
+          411
+        </div>
+        <div>
+          <h1 class="font-black text-xl sm:text-2xl leading-tight">קו 411</h1>
+          <p class="text-blue-200 text-xs sm:text-sm font-bold">צלפון ⇄ רמלה ⇄ ת"א / בית שמש</p>
+        </div>
+      </div>
+
+      <div class="text-left">
+        <div class="text-xs text-blue-200 font-bold">השעה כעת</div>
+        <div id="clockDisplay" class="font-mono font-black text-xl sm:text-2xl text-amber-300">--:--</div>
+      </div>
+    </div>
+  </header>
+
+  <!-- Main Wizard Container -->
+  <main class="max-w-lg w-full mx-auto px-4 py-6 flex-1 flex flex-col justify-center">
+
+    <!-- ==================== STEP 1: CHOOSE DIRECTION ==================== -->
+    <section id="stepDirection" class="step-transition space-y-5">
+      <div class="text-center space-y-1">
+        <h2 class="text-2xl sm:text-3xl font-black text-slate-900">לאן נוסעים עכשיו?</h2>
+        <p class="text-base sm:text-lg text-slate-600 font-bold">לחצו על כיוון הנסיעה:</p>
+      </div>
+
+      <div class="space-y-4">
+        <!-- Giant Button 1: To Tel Aviv -->
+        <button id="btnSelectToTLV" type="button" class="w-full bg-white hover:bg-blue-50 active:scale-[0.98] border-4 border-blue-600 rounded-3xl p-6 shadow-lg text-right flex items-center justify-between gap-4 transition">
+          <div class="space-y-1">
+            <div class="text-2xl sm:text-3xl font-black text-blue-950">לכיוון תל אביב</div>
+            <div class="text-sm sm:text-base font-bold text-slate-600">מבית שמש ← צלפון ← רמלה ← ת"א</div>
+          </div>
+          <span class="text-4xl sm:text-5xl">🏙️</span>
+        </button>
+
+        <!-- Giant Button 2: To Beit Shemesh -->
+        <button id="btnSelectToBS" type="button" class="w-full bg-white hover:bg-emerald-50 active:scale-[0.98] border-4 border-emerald-600 rounded-3xl p-6 shadow-lg text-right flex items-center justify-between gap-4 transition">
+          <div class="space-y-1">
+            <div class="text-2xl sm:text-3xl font-black text-emerald-950">לכיוון בית שמש</div>
+            <div class="text-sm sm:text-base font-bold text-slate-600">מתל אביב ← רמלה ← צלפון ← בית שמש</div>
+          </div>
+          <span class="text-4xl sm:text-5xl">🏡</span>
+        </button>
+      </div>
+    </section>
+
+    <!-- ==================== STEP 2: CHOOSE STATION ==================== -->
+    <section id="stepStation" class="step-transition space-y-5 hidden">
+      <!-- Back Button -->
+      <div>
+        <button id="btnBackToDirection" type="button" class="inline-flex items-center gap-2 bg-slate-200 hover:bg-slate-300 active:scale-95 text-slate-900 font-extrabold px-4 py-2.5 rounded-2xl text-base sm:text-lg transition">
+          <span>➡️</span>
+          <span>חזור לבחירת כיוון</span>
+        </button>
+      </div>
+
+      <div class="text-center space-y-1">
+        <div id="chosenDirectionBadge" class="inline-block bg-blue-100 text-blue-900 font-extrabold px-4 py-1 rounded-full text-sm sm:text-base">
+          נסיעה לכיוון תל אביב
+        </div>
+        <h2 class="text-2xl sm:text-3xl font-black text-slate-900 pt-1">באיזו תחנה עולים?</h2>
+      </div>
+
+      <div class="space-y-4">
+        <!-- Giant Button 1: Moshav Tzelafon -->
+        <button id="btnSelectTzelafon" type="button" class="w-full bg-white hover:bg-amber-50 active:scale-[0.98] border-4 border-slate-800 rounded-3xl p-6 shadow-lg text-right flex items-center justify-between gap-4 transition">
+          <div class="space-y-1">
+            <div class="text-2xl sm:text-3xl font-black text-slate-900">מושב צלפון</div>
+            <div id="tzelafonSubLabel" class="text-sm sm:text-base font-bold text-slate-600">מסעף צלפון (כביש 44)</div>
+          </div>
+          <span class="text-4xl sm:text-5xl">🌾</span>
+        </button>
+
+        <!-- Giant Button 2: Ramla Central Station -->
+        <button id="btnSelectRamla" type="button" class="w-full bg-white hover:bg-amber-50 active:scale-[0.98] border-4 border-slate-800 rounded-3xl p-6 shadow-lg text-right flex items-center justify-between gap-4 transition">
+          <div class="space-y-1">
+            <div class="text-2xl sm:text-3xl font-black text-slate-900">תחנה מרכזית רמלה</div>
+            <div id="ramlaSubLabel" class="text-sm sm:text-base font-bold text-slate-600">מרכזית רמלה</div>
+          </div>
+          <span class="text-4xl sm:text-5xl">🚏</span>
+        </button>
+      </div>
+    </section>
+
+    <!-- ==================== STEP 3: GIANT ARRIVAL RESULT ==================== -->
+    <section id="stepResult" class="step-transition space-y-4 hidden">
+      <!-- Top Back & Home Row -->
+      <div class="flex items-center justify-between gap-2">
+        <button id="btnBackToStation" type="button" class="inline-flex items-center gap-2 bg-slate-200 hover:bg-slate-300 active:scale-95 text-slate-900 font-extrabold px-4 py-2.5 rounded-2xl text-base sm:text-lg transition">
+          <span>➡️</span>
+          <span>חזור לתחנות</span>
+        </button>
+
+        <button id="btnStartOver" type="button" class="inline-flex items-center gap-1.5 bg-white border-2 border-slate-300 hover:bg-slate-100 active:scale-95 text-slate-700 font-bold px-3.5 py-2.5 rounded-2xl text-sm sm:text-base transition">
+          <span>🔄</span>
+          <span>החלף כיוון</span>
+        </button>
+      </div>
+
+      <!-- Main Giant Result Card -->
+      <div id="resultCard" class="bg-white rounded-3xl shadow-xl border-4 border-blue-700 overflow-hidden">
+        <!-- Card Header -->
+        <div id="resultHeader" class="bg-blue-800 text-white p-4 text-center space-y-1">
+          <div id="resultDirectionTitle" class="text-sm sm:text-base font-bold text-blue-200">קו 411 • לכיוון תל אביב</div>
+          <h2 id="resultStationTitle" class="text-2xl sm:text-3xl font-black">מושב צלפון</h2>
+          <div id="resultStopSubtitle" class="text-xs sm:text-sm font-medium text-blue-100">מסעף צלפון / למערב (תחנה 5407)</div>
+        </div>
+
+        <!-- Giant ETA Display -->
+        <div class="p-6 text-center space-y-4">
+          <div class="bg-slate-900 text-white rounded-3xl p-6 shadow-inner space-y-2">
+            <div id="etaLeadText" class="text-base sm:text-lg font-bold text-slate-300">האוטובוס הקרוב יגיע בעוד:</div>
+            <div id="etaBigNumber" class="text-5xl sm:text-6xl font-black text-amber-400 tracking-tight py-1">
+              12 דקות
+            </div>
+            <div class="pt-2 border-t border-slate-800 flex items-center justify-center gap-2 text-lg sm:text-xl font-bold">
+              <span class="text-slate-300">שעת הגעה לתחנה:</span>
+              <span id="etaClockTime" class="font-mono font-black text-2xl sm:text-3xl text-white">12:17</span>
+            </div>
+          </div>
+
+          <!-- Next Buses Row -->
+          <div class="bg-slate-50 border-2 border-slate-200 rounded-2xl p-3.5 space-y-2">
+            <div class="text-sm font-extrabold text-slate-600">האוטובוסים הבאים אחריו:</div>
+            <div id="nextBusesRow" class="grid grid-cols-3 gap-2">
+              <!-- Populated by JS -->
+            </div>
+          </div>
+
+          <!-- Voice Readout Button -->
+          <button id="btnSpeakResult" type="button" class="w-full bg-amber-400 hover:bg-amber-300 active:scale-[0.98] text-slate-950 font-black py-4 px-5 rounded-2xl shadow-md text-xl flex items-center justify-center gap-2 transition">
+            <span>🔊</span>
+            <span>הקרא לי בקול</span>
+          </button>
+        </div>
+      </div>
+
+      <!-- Subtle Separate Button for Full Schedule -->
+      <div class="text-center pt-1">
+        <button id="btnOpenScheduleModal" type="button" class="text-slate-600 hover:text-slate-900 font-bold text-sm sm:text-base underline underline-offset-4 py-2 px-4">
+          📅 הצג לוח זמנים יומי מלא לתחנה זו
+        </button>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- Minimal Footer -->
+  <footer class="text-center py-3 text-xs text-slate-500 font-medium">
+    קו 411 בית שמש אקספרס • מוקד טלפוני: <a href="tel:*3343" class="underline font-bold text-slate-700">*3343</a>
+  </footer>
+
+  <!-- ==================== SEPARATE MODAL FOR FULL SCHEDULE ==================== -->
+  <div id="scheduleModal" class="fixed inset-0 bg-slate-950/75 z-50 flex items-end sm:items-center justify-center p-0 sm:p-4 hidden">
+    <div class="bg-white w-full max-w-md rounded-t-3xl sm:rounded-3xl max-h-[85vh] flex flex-col overflow-hidden shadow-2xl border-t-4 border-amber-400">
+      <div class="bg-slate-900 text-white p-4 flex items-center justify-between">
+        <div>
+          <h3 id="modalTitle" class="font-black text-lg">לוח זמנים מלא — קו 411</h3>
+          <p id="modalSubtitle" class="text-xs text-slate-300 font-bold">שעות הגעה משוערות לתחנה</p>
+        </div>
+        <button id="btnCloseScheduleModal" type="button" class="bg-slate-800 hover:bg-slate-700 text-white font-extrabold px-3.5 py-1.5 rounded-xl text-sm">
+          ✕ סגור
+        </button>
+      </div>
+
+      <!-- Day Type Selector inside Modal -->
+      <div class="grid grid-cols-3 gap-1.5 p-2.5 bg-slate-100 border-b border-slate-200">
+        <button id="modalDayWeekday" type="button" class="py-2 rounded-xl font-extrabold text-xs sm:text-sm bg-blue-700 text-white">
+          ימי חול (א'–ה')
+        </button>
+        <button id="modalDayFriday" type="button" class="py-2 rounded-xl font-bold text-xs sm:text-sm bg-white text-slate-700">
+          יום שישי
+        </button>
+        <button id="modalDaySat" type="button" class="py-2 rounded-xl font-bold text-xs sm:text-sm bg-white text-slate-700">
+          מוצאי שבת
+        </button>
+      </div>
+
+      <div class="p-4 overflow-y-auto flex-1">
+        <div id="modalTimesGrid" class="grid grid-cols-4 gap-2 text-center font-mono font-bold text-base">
+          <!-- Populated by JS -->
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Speech / Notification Toast -->
+  <div id="toastBanner" class="fixed bottom-4 left-4 right-4 max-w-md mx-auto z-50 hidden">
+    <div class="bg-slate-950 text-white border-2 border-amber-400 rounded-2xl p-4 shadow-2xl flex items-center justify-between gap-3">
+      <p id="toastText" class="font-extrabold text-base leading-snug"></p>
+      <button id="btnCloseToast" type="button" class="bg-slate-800 text-white font-bold px-3 py-1 rounded-xl text-sm">
+        סגור
+      </button>
+    </div>
+  </div>
+
+  <script>
+    // ============================================================================
+    // 1. STOPS & CALIBRATED SCHEDULE DATA FOR LINE 411
+    // ============================================================================
+    const STOPS_MAP = {
+      to_tlv: {
+        tzelafon: {
+          stopCode: '5407',
+          gtfsStopId: '11045',
+          title: 'מושב צלפון',
+          subtitle: 'מסעף צלפון / למערב (תחנה 5407)',
+          directionTitle: 'קו 411 • לכיוון תל אביב',
+          offsetMin: 17 // 12:00 from Beit Shemesh -> 12:17 at Tzelafon
+        },
+        ramla: {
+          stopCode: '33484',
+          gtfsStopId: '21731',
+          title: 'תחנה מרכזית רמלה',
+          subtitle: 'שדרות הרצל, רמלה (תחנה 33484)',
+          directionTitle: 'קו 411 • לכיוון תל אביב',
+          offsetMin: 33 // 12:00 from Beit Shemesh -> 12:33 at Ramla
+        }
+      },
+      to_bs: {
+        ramla: {
+          stopCode: '33077',
+          gtfsStopId: '49248',
+          title: 'תחנה מרכזית רמלה',
+          subtitle: 'רציפי איסוף, רמלה (תחנה 33077)',
+          directionTitle: 'קו 411 • לכיוון בית שמש',
+          offsetMin: 24 // 24 mins from Tel Aviv Central Station
+        },
+        tzelafon: {
+          stopCode: '5408',
+          gtfsStopId: '11046',
+          title: 'מושב צלפון',
+          subtitle: 'מסעף צלפון / למזרח (תחנה 5408)',
+          directionTitle: 'קו 411 • לכיוון בית שמש',
+          offsetMin: 40 // 40 mins from Tel Aviv Central Station
+        }
+      }
+    };
+
+    const ORIGIN_DEPARTURES = {
+      weekday: {
+        to_tlv: [
+          '05:30', '06:00', '06:30', '07:00', '07:30', '08:00', '08:30', '09:00',
+          '10:00', '11:00', '12:00', '13:00', '14:00', '15:00', '16:00', '16:30',
+          '17:00', '17:30', '18:00', '18:30', '19:00', '20:00', '21:00', '22:00',
+          '23:10'
+        ],
+        to_bs: [
+          '06:00', '06:30', '07:00', '07:30', '08:00', '08:30', '09:00', '10:00',
+          '11:00', '12:00', '13:00', '14:00', '15:00', '16:00', '16:30', '17:00',
+          '17:30', '18:00', '18:30', '19:00', '20:00', '21:00', '22:00', '23:00'
+        ]
+      },
+      friday: {
+        to_tlv: [
+          '05:45', '06:30', '07:15', '08:00', '08:45', '09:30', '10:15', '11:00',
+          '11:45', '12:30', '13:15', '13:50', '14:30'
+        ],
+        to_bs: [
+          '06:05', '06:50', '07:35', '08:20', '09:05', '09:50', '10:35', '11:20',
+          '12:05', '12:50', '13:35', '14:20'
+        ]
+      },
+      saturday: {
+        to_tlv: ['20:15', '20:45', '21:15', '21:45', '22:15', '22:45', '23:15'],
+        to_bs: ['20:30', '21:00', '21:30', '22:00', '22:30', '23:00', '23:30']
+      }
+    };
+
+    // ============================================================================
+    // 2. WIZARD STATE
+    // ============================================================================
+    const state = {
+      step: 1,                  // 1 = direction, 2 = station, 3 = result
+      direction: 'to_tlv',      // 'to_tlv' | 'to_bs'
+      station: 'tzelafon',      // 'tzelafon' | 'ramla'
+      modalDay: 'weekday',      // 'weekday' | 'friday' | 'saturday'
+      liveCache: {}             // stopCode -> array of { etaMinutes, timeStr }
+    };
+
+    function addMinutes(timeStr, offset) {
+      const [h, m] = timeStr.split(':').map(Number);
+      const total = h * 60 + m + offset;
+      const hh = Math.floor(total / 60) % 24;
+      const mm = total % 60;
+      return `${String(hh).padStart(2, '0')}:${String(mm).padStart(2, '0')}`;
+    }
+
+    function getDayCategory(d) {
+      const day = d.getDay();
+      if (day === 5) return 'friday';
+      if (day === 6) return 'saturday';
+      return 'weekday';
+    }
+
+    function getCurrentStopInfo() {
+      return STOPS_MAP[state.direction][state.station];
+    }
+
+    function getArrivalsForCurrentStop() {
+      const stop = getCurrentStopInfo();
+      if (state.liveCache[stop.stopCode] && state.liveCache[stop.stopCode].length > 0) {
+        return state.liveCache[stop.stopCode];
+      }
+
+      const now = new Date();
+      const dayCat = getDayCategory(now);
+      const departures = (ORIGIN_DEPARTURES[dayCat] && ORIGIN_DEPARTURES[dayCat][state.direction]) || ORIGIN_DEPARTURES.weekday[state.direction];
+      const nowMin = now.getHours() * 60 + now.getMinutes();
+
+      const upcoming = [];
+      for (const dep of departures) {
+        const [h, m] = dep.split(':').map(Number);
+        const arrTotal = h * 60 + m + stop.offsetMin;
+        const diff = arrTotal - nowMin;
+        if (diff >= -1) {
+          const arrH = Math.floor(arrTotal / 60) % 24;
+          const arrM = arrTotal % 60;
+          upcoming.push({
+            etaMinutes: Math.max(0, diff),
+            timeStr: `${String(arrH).padStart(2, '0')}:${String(arrM).padStart(2, '0')}`,
+            isTomorrow: false
+          });
+        }
+      }
+
+      // If late night after last bus, show first morning buses
+      if (upcoming.length === 0) {
+        const morningDeps = ORIGIN_DEPARTURES.weekday[state.direction].slice(0, 4);
+        for (const dep of morningDeps) {
+          const arrStr = addMinutes(dep, stop.offsetMin);
+          const [ah, am] = arrStr.split(':').map(Number);
+          const diff = (24 * 60 - nowMin) + (ah * 60 + am);
+          upcoming.push({
+            etaMinutes: diff,
+            timeStr: arrStr,
+            isTomorrow: true
+          });
+        }
+      }
+
+      return upcoming.slice(0, 4);
+    }
+
+    // Optional background fetch when deployed on Vercel/Netlify with /api/bus
+    async function tryFetchLiveForStop(stop) {
+      if (!window.location.protocol.startsWith('http') || window.location.origin === 'null') return;
+      try {
+        const controller = new AbortController();
+        const tid = setTimeout(() => controller.abort(), 2800);
+        const apiEndpoint = `${window.location.origin}/api/bus?stop=${stop.stopCode}&gtfs=${stop.gtfsStopId}`;
+        const resp = await fetch(apiEndpoint, { signal: controller.signal });
+        clearTimeout(tid);
+        if (!resp.ok) return;
+        const payload = await resp.json();
+        const nowSec = Math.floor(Date.now() / 1000);
+        if (payload.source === 'busnearby' && Array.isArray(payload.data)) {
+          const list = [];
+          for (const entry of payload.data) {
+            for (const t of (entry.times || [])) {
+              if (String(t.routeShortName) === '411') {
+                const arrSec = (t.serviceDay || 0) + (t.realtimeArrival || t.scheduledArrival || 0);
+                const diffMin = Math.max(0, Math.round((arrSec - nowSec) / 60));
+                const d = new Date(arrSec * 1000);
+                list.push({
+                  etaMinutes: diffMin,
+                  timeStr: d.toLocaleTimeString('he-IL', { hour: '2-digit', minute: '2-digit' }),
+                  isTomorrow: false
+                });
+              }
+            }
+          }
+          if (list.length > 0) {
+            list.sort((a, b) => a.etaMinutes - b.etaMinutes);
+            state.liveCache[stop.stopCode] = list;
+            if (state.step === 3) renderResultStep();
+          }
+        }
+      } catch (e) {
+        // Silent fallback to calibrated schedule
+      }
+    }
+
+    // ============================================================================
+    // 3. RENDERING WIZARD STEPS
+    // ============================================================================
+    function renderClock() {
+      const now = new Date();
+      const el = document.getElementById('clockDisplay');
+      if (el) {
+        el.textContent = now.toLocaleTimeString('he-IL', { hour: '2-digit', minute: '2-digit' });
+      }
+    }
+
+    function updateStepVisibility() {
+      const s1 = document.getElementById('stepDirection');
+      const s2 = document.getElementById('stepStation');
+      const s3 = document.getElementById('stepResult');
+
+      s1.classList.toggle('hidden', state.step !== 1);
+      s2.classList.toggle('hidden', state.step !== 2);
+      s3.classList.toggle('hidden', state.step !== 3);
+
+      if (state.step === 2) {
+        const badge = document.getElementById('chosenDirectionBadge');
+        const tzSub = document.getElementById('tzelafonSubLabel');
+        const rmSub = document.getElementById('ramlaSubLabel');
+        if (state.direction === 'to_tlv') {
+          badge.textContent = '🏙️ נסיעה לכיוון תל אביב';
+          badge.className = 'inline-block bg-blue-100 text-blue-900 font-extrabold px-4 py-1 rounded-full text-sm sm:text-base';
+          tzSub.textContent = 'מסעף צלפון / למערב (תחנה 5407)';
+          rmSub.textContent = 'מרכזית רמלה / שד׳ הרצל (תחנה 33484)';
+        } else {
+          badge.textContent = '🏡 נסיעה לכיוון בית שמש';
+          badge.className = 'inline-block bg-emerald-100 text-emerald-900 font-extrabold px-4 py-1 rounded-full text-sm sm:text-base';
+          tzSub.textContent = 'מסעף צלפון / למזרח (תחנה 5408)';
+          rmSub.textContent = 'מרכזית רמלה / רציפים (תחנה 33077)';
+        }
+      }
+
+      if (state.step === 3) {
+        renderResultStep();
+        tryFetchLiveForStop(getCurrentStopInfo());
+      }
+    }
+
+    function renderResultStep() {
+      const stop = getCurrentStopInfo();
+      const arrivals = getArrivalsForCurrentStop();
+      const nextBus = arrivals[0];
+      const following = arrivals.slice(1, 4);
+
+      const isToTLV = state.direction === 'to_tlv';
+      const card = document.getElementById('resultCard');
+      const header = document.getElementById('resultHeader');
+
+      card.className = `bg-white rounded-3xl shadow-xl border-4 overflow-hidden ${isToTLV ? 'border-blue-700' : 'border-emerald-700'}`;
+      header.className = `${isToTLV ? 'bg-blue-800' : 'bg-emerald-800'} text-white p-4 text-center space-y-1`;
+
+      document.getElementById('resultDirectionTitle').textContent = stop.directionTitle;
+      document.getElementById('resultStationTitle').textContent = stop.title;
+      document.getElementById('resultStopSubtitle').textContent = stop.subtitle;
+
+      const leadEl = document.getElementById('etaLeadText');
+      const bigEl = document.getElementById('etaBigNumber');
+      const clockEl = document.getElementById('etaClockTime');
+
+      if (!nextBus) {
+        leadEl.textContent = 'אין נסיעות קרובות';
+        bigEl.textContent = '--';
+        clockEl.textContent = '--:--';
+      } else if (nextBus.isTomorrow) {
+        leadEl.textContent = 'השירות להיום הסתיים • אוטובוס ראשון בבוקר:';
+        bigEl.textContent = `ב-${nextBus.timeStr}`;
+        clockEl.textContent = nextBus.timeStr;
+      } else if (nextBus.etaMinutes <= 1) {
+        leadEl.textContent = '🚌 האוטובוס נכנס לתחנה!';
+        bigEl.textContent = 'מגיע עכשיו!';
+        clockEl.textContent = nextBus.timeStr;
+      } else if (nextBus.etaMinutes >= 60) {
+        const hrs = Math.floor(nextBus.etaMinutes / 60);
+        const mins = nextBus.etaMinutes % 60;
+        const hrsLabel = hrs === 1 ? 'שעה' : `${hrs} שעות`;
+        leadEl.textContent = nextBus.etaMinutes >= 180 ? 'שעות לילה • האוטובוס הראשון בבוקר בעוד:' : 'האוטובוס הקרוב יגיע בעוד:';
+        bigEl.textContent = mins > 0 ? `${hrsLabel} ו-${mins} דק׳` : hrsLabel;
+        clockEl.textContent = nextBus.timeStr;
+      } else {
+        leadEl.textContent = 'האוטובוס הקרוב יגיע בעוד:';
+        bigEl.textContent = `עוד ${nextBus.etaMinutes} דקות`;
+        clockEl.textContent = nextBus.timeStr;
+      }
+
+      const nextRow = document.getElementById('nextBusesRow');
+      nextRow.innerHTML = following.map(b => `
+        <div class="bg-white border-2 border-slate-200 rounded-xl py-2 px-2 text-center shadow-sm">
+          <div class="font-mono font-black text-lg sm:text-xl text-slate-900">${b.timeStr}</div>
+          <div class="text-xs font-bold text-slate-500">${b.isTomorrow || b.etaMinutes >= 120 ? 'בבוקר' : `עוד ${b.etaMinutes} דק׳`}</div>
+        </div>
+      `).join('');
+    }
+
+    function renderScheduleModal() {
+      const stop = getCurrentStopInfo();
+      document.getElementById('modalTitle').textContent = `לוח זמנים — ${stop.title}`;
+      document.getElementById('modalSubtitle').textContent = `${stop.directionTitle} (${stop.subtitle})`;
+
+      const dayBtns = {
+        weekday: document.getElementById('modalDayWeekday'),
+        friday: document.getElementById('modalDayFriday'),
+        saturday: document.getElementById('modalDaySat')
+      };
+      Object.entries(dayBtns).forEach(([k, btn]) => {
+        btn.className = state.modalDay === k
+          ? 'py-2 rounded-xl font-extrabold text-xs sm:text-sm bg-blue-700 text-white shadow'
+          : 'py-2 rounded-xl font-bold text-xs sm:text-sm bg-white text-slate-700';
+      });
+
+      const deps = (ORIGIN_DEPARTURES[state.modalDay] && ORIGIN_DEPARTURES[state.modalDay][state.direction]) || [];
+      const now = new Date();
+      const nowMin = now.getHours() * 60 + now.getMinutes();
+
+      const grid = document.getElementById('modalTimesGrid');
+      grid.innerHTML = deps.map(d => {
+        const arrStr = addMinutes(d, stop.offsetMin);
+        const [h, m] = arrStr.split(':').map(Number);
+        const isNext = (h * 60 + m) >= nowMin && (h * 60 + m) - nowMin <= 55;
+        return `
+          <div class="py-2 px-1 rounded-xl border ${isNext ? 'bg-amber-300 border-amber-500 text-slate-950 font-black' : 'bg-slate-50 border-slate-200 text-slate-800'}">
+            ${arrStr}
+          </div>
+        `;
+      }).join('');
+    }
+
+    // ============================================================================
+    // 4. VOICE READOUT FOR PARENTS
+    // ============================================================================
+    let toastTimer = null;
+    function showToast(text) {
+      const banner = document.getElementById('toastBanner');
+      const textEl = document.getElementById('toastText');
+      textEl.textContent = text;
+      banner.classList.remove('hidden');
+      if (toastTimer) clearTimeout(toastTimer);
+      toastTimer = setTimeout(() => banner.classList.add('hidden'), 6000);
+    }
+
+    function speakCurrentResult() {
+      const stop = getCurrentStopInfo();
+      const arrivals = getArrivalsForCurrentStop();
+      const nextBus = arrivals[0];
+      if (!nextBus) return;
+
+      let msg = '';
+      if (nextBus.isTomorrow) {
+        msg = `הנסיעות להיום הסתיימו. האוטובוס הראשון בבוקר בתחנת ${stop.title} יגיע בשעה ${nextBus.timeStr}.`;
+      } else if (nextBus.etaMinutes <= 1) {
+        msg = `קו 411 נכנס עכשיו לתחנת ${stop.title}!`;
+      } else {
+        msg = `קו 411 יגיע לתחנת ${stop.title} בעוד ${nextBus.etaMinutes} דקות, בשעה ${nextBus.timeStr}.`;
+      }
+
+      showToast(`🔊 ${msg}`);
+      try {
+        if ('speechSynthesis' in window) {
+          window.speechSynthesis.cancel();
+          const u = new SpeechSynthesisUtterance(msg);
+          u.lang = 'he-IL';
+          u.rate = 0.92;
+          window.speechSynthesis.speak(u);
+        }
+      } catch (e) {}
+    }
+
+    // ============================================================================
+    // 5. WIRE UP EVENTS
+    // ============================================================================
+    window.addEventListener('DOMContentLoaded', () => {
+      renderClock();
+      setInterval(() => {
+        renderClock();
+        if (state.step === 3) renderResultStep();
+      }, 10000);
+
+      // Step 1 -> Step 2
+      document.getElementById('btnSelectToTLV').addEventListener('click', () => {
+        state.direction = 'to_tlv';
+        state.step = 2;
+        updateStepVisibility();
+      });
+      document.getElementById('btnSelectToBS').addEventListener('click', () => {
+        state.direction = 'to_bs';
+        state.step = 2;
+        updateStepVisibility();
+      });
+
+      // Step 2 -> Step 1 (Back)
+      document.getElementById('btnBackToDirection').addEventListener('click', () => {
+        state.step = 1;
+        updateStepVisibility();
+      });
+
+      // Step 2 -> Step 3
+      document.getElementById('btnSelectTzelafon').addEventListener('click', () => {
+        state.station = 'tzelafon';
+        state.step = 3;
+        updateStepVisibility();
+      });
+      document.getElementById('btnSelectRamla').addEventListener('click', () => {
+        state.station = 'ramla';
+        state.step = 3;
+        updateStepVisibility();
+      });
+
+      // Step 3 -> Step 2 (Back) or Step 1 (Start Over)
+      document.getElementById('btnBackToStation').addEventListener('click', () => {
+        state.step = 2;
+        updateStepVisibility();
+      });
+      document.getElementById('btnStartOver').addEventListener('click', () => {
+        state.step = 1;
+        updateStepVisibility();
+      });
+
+      // Speak button
+      document.getElementById('btnSpeakResult').addEventListener('click', speakCurrentResult);
+
+      // Schedule Modal
+      document.getElementById('btnOpenScheduleModal').addEventListener('click', () => {
+        state.modalDay = getDayCategory(new Date());
+        renderScheduleModal();
+        document.getElementById('scheduleModal').classList.remove('hidden');
+      });
+      document.getElementById('btnCloseScheduleModal').addEventListener('click', () => {
+        document.getElementById('scheduleModal').classList.add('hidden');
+      });
+      document.getElementById('modalDayWeekday').addEventListener('click', () => {
+        state.modalDay = 'weekday';
+        renderScheduleModal();
+      });
+      document.getElementById('modalDayFriday').addEventListener('click', () => {
+        state.modalDay = 'friday';
+        renderScheduleModal();
+      });
+      document.getElementById('modalDaySat').addEventListener('click', () => {
+        state.modalDay = 'saturday';
+        renderScheduleModal();
+      });
+
+      // Close toast
+      document.getElementById('btnCloseToast').addEventListener('click', () => {
+        document.getElementById('toastBanner').classList.add('hidden');
+      });
+    });
+  </script>
+</body>
+</html>
